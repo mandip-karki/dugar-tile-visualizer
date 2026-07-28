@@ -78,7 +78,10 @@ export class FloorEditor implements AfterViewInit {
     wall: this.blankQuad(),
   };
 
-  private dragTarget: { surface: Surface; index: number } | null = null;
+  private dragTarget:
+    | { kind: 'corner'; surface: Surface; index: number }
+    | { kind: 'move'; surface: Surface; start: Point; original: Quad }
+    | null = null;
   private detectionToken = 0;
   private renderScheduled = false;
 
@@ -256,29 +259,74 @@ export class FloorEditor implements AfterViewInit {
     if (!this.showHandles()) return;
     const p = this.toCanvasPoint(ev);
     const r = Math.max(8, this.canvasRef.nativeElement.width / 60) * 1.8;
-    let best: { surface: Surface; index: number } | null = null;
-    let bestDist = Infinity;
+    const activeSurfaces = (['floor', 'wall'] as Surface[]).filter(
+      (s) => this.tileImgs[s] || this.surfaceFound[s]
+    );
 
-    (['floor', 'wall'] as Surface[]).forEach((surface) => {
+    // 1) grabbing a corner handle reshapes just that corner
+    let bestCorner: { surface: Surface; index: number } | null = null;
+    let bestDist = Infinity;
+    for (const surface of activeSurfaces) {
       this.quads[surface].forEach((q, i) => {
         const d = Math.hypot(q.x - p.x, q.y - p.y);
         if (d < r && d < bestDist) {
-          best = { surface, index: i };
+          bestCorner = { surface, index: i };
           bestDist = d;
         }
       });
-    });
+    }
+    if (bestCorner) {
+      const corner: { surface: Surface; index: number } = bestCorner;
+      this.dragTarget = { kind: 'corner', surface: corner.surface, index: corner.index };
+      this.capturePointer(ev);
+      return;
+    }
 
-    if (best) {
-      this.dragTarget = best;
+    // 2) grabbing anywhere inside the outline moves the whole selection
+    for (const surface of activeSurfaces) {
+      if (this.pointInQuad(p, this.quads[surface])) {
+        this.dragTarget = { kind: 'move', surface, start: p, original: [...this.quads[surface]] as Quad };
+        this.capturePointer(ev);
+        return;
+      }
+    }
+  }
+
+  private capturePointer(ev: PointerEvent): void {
+    try {
       (ev.target as HTMLElement).setPointerCapture(ev.pointerId);
+    } catch {
+      // no active pointer session to capture (e.g. synthetic events in tests) — harmless;
+      // without capture, fast drags that leave the canvas briefly just stop updating until
+      // the pointer re-enters, rather than failing outright
     }
   }
 
   onPointerMove(ev: PointerEvent): void {
     if (!this.dragTarget) return;
-    this.quads[this.dragTarget.surface][this.dragTarget.index] = this.toCanvasPoint(ev);
+    const p = this.toCanvasPoint(ev);
+    if (this.dragTarget.kind === 'corner') {
+      this.quads[this.dragTarget.surface][this.dragTarget.index] = p;
+    } else {
+      const { start, original, surface } = this.dragTarget;
+      const dx = p.x - start.x;
+      const dy = p.y - start.y;
+      this.quads[surface] = original.map((pt) => ({ x: pt.x + dx, y: pt.y + dy })) as Quad;
+    }
     this.scheduleRender();
+  }
+
+  private pointInQuad(p: Point, quad: Quad): boolean {
+    let inside = false;
+    for (let i = 0, j = quad.length - 1; i < quad.length; j = i++) {
+      const xi = quad[i].x;
+      const yi = quad[i].y;
+      const xj = quad[j].x;
+      const yj = quad[j].y;
+      const intersects = yi > p.y !== yj > p.y && p.x < ((xj - xi) * (p.y - yi)) / (yj - yi) + xi;
+      if (intersects) inside = !inside;
+    }
+    return inside;
   }
 
   @HostListener('window:pointerup')
