@@ -1,31 +1,47 @@
-# Floor Tile Visualizer
+# The Dugar Pvt. Ltd. — Tile & Wall Visualizer
+
+Granite, tile & sanitaryware. Live at **https://mandip-karki.github.io/dugar-tile-visualizer/**
+— works on desktop and mobile (HTTPS is required for camera access, which GitHub Pages provides).
 
 ## Structure
 
-- `tile-assets/` — extracted tile images + `tiles.json` (591 tiles from the Kajaria Ramesh catalogue)
-- `backend/` — ASP.NET Core Web API (`TileFloorApi`) serving `/api/tiles` and `/images/*`
-- `frontend/` — Angular app: camera/photo capture → tile picker → perspective-warp floor preview
+- `tile-assets/` — extraction output + docs: images + `tiles.json` (591 tiles from the Kajaria
+  Ramesh catalogue). Source of truth for the catalogue; not deployed directly.
+- `frontend/` — the entire deployed app. Angular, **fully static** — `frontend/public/tiles.json`
+  and `frontend/public/images/` are a bundled copy of `tile-assets/`, so the site needs no backend
+  or database to run. Camera/photo capture, in-browser DeepLab segmentation, dimension-based room
+  builder, perspective tile warping — all client-side.
+- `backend/` — ASP.NET Core Web API (`TileFloorApi`). **Not currently used by the deployed site**
+  — kept in the repo for future features that need a real server (accounts, saved rooms, order
+  requests, etc.). Useful for local dev if you want to experiment with a server-backed `/api/tiles`
+  instead of the static JSON, but the deployed app doesn't call it.
 
-## Running it
+## Deployment
 
-Node.js and the .NET SDK were just installed via winget — **open a new terminal** so PATH picks them up
-(this session's shell won't see them until then). Then:
+Pushing to `main` triggers `.github/workflows/deploy.yml`: builds the Angular app
+(`ng build --configuration production --base-href /dugar-tile-visualizer/`) and publishes
+`frontend/dist/frontend/browser` to GitHub Pages. No servers to keep running, no cost, no
+cold-start delay — it's plain static hosting on GitHub's CDN.
 
-```bash
-cd backend
-dotnet run
-```
+To deploy a change: commit, `git push`, then check progress at
+`https://github.com/mandip-karki/dugar-tile-visualizer/actions` (usually done in under a minute).
+
+If the repo name or GitHub username ever changes, update `--base-href` in `deploy.yml` to match
+(it must equal the Pages URL's path segment, e.g. `/dugar-tile-visualizer/`).
+
+## Running it locally
 
 ```bash
 cd frontend
+npm install   # first time only
 npm start
 ```
 
-Open **http://localhost:4200**. The Angular dev server proxies `/api` and `/images` to the backend on
-`localhost:5108` (see `frontend/proxy.conf.json`), so both need to be running.
+Open **http://localhost:4200** — no backend needed, it's the same static setup as production.
 
-Both servers are already running right now in this session (backend on :5108, frontend on :4200) —
-just open http://localhost:4200 in your browser to try it immediately.
+If you want to experiment with the optional ASP.NET backend instead of the static JSON, `cd
+backend && dotnet run`, then point `TileService` at `/api/tiles` and re-add a dev proxy — it's
+disconnected from the frontend by default (see `frontend/src/app/services/tile.service.ts`).
 
 ## How the floor-swap works
 
@@ -59,8 +75,8 @@ Floor and wall tiles are scaled **independently**, not with one shared repeat-co
 
 1. Capture or upload a photo (`camera-capture` component).
 2. Pick a **floor** tile and/or a **wall** tile from the catalogue — the sidebar has a
-   Floor/Wall tab switcher, each backed by its own `/api/tiles?usage=floor` or `?usage=wall`
-   list, its own search box, size filter, and favorites (★, persisted in `localStorage`,
+   Floor/Wall tab switcher, each filtering the bundled `tiles.json` client-side by `usage`,
+   with its own search box, size filter, and favorites (★, persisted in `localStorage`,
    shared across both tabs, floats favorited tiles to the top of the list).
 3. `floor-editor` automatically detects both regions from a **single** segmentation pass —
    no manual outlining needed:
@@ -103,8 +119,7 @@ whether floor/wall were actually found.
 ## Known gaps / next steps
 
 - Tile source images are print-resolution (~100dpi) — fine for now, see `tile-assets/README.md`.
-- No accounts, saved rooms, or persistence — this is the MVP visualizer only.
-- CORS is configured for `http://localhost:4200` only; update `Program.cs` before deploying.
+- No accounts, saved rooms, or persistence beyond favorites — this is the MVP visualizer only.
 - The auto-estimated quad is a simple trapezoid from the mask's bounding extent — works well
   for a single flat floor plane, less so for L-shaped rooms or multiple floor areas in one
   shot (the mask-based punch-out still avoids obstacles correctly either way, it's just the
