@@ -1,0 +1,56 @@
+<div class="editor">
+  <div class="editor__canvas-wrap">
+    <canvas
+      #canvas
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+    ></canvas>
+
+    @if (detecting()) {
+      <div class="editor__overlay">
+        <div class="editor__spinner"></div>
+        <span>Detecting floor &amp; walls…</span>
+      </div>
+    }
+  </div>
+
+  @if (detectionFailed()) {
+    <p class="editor__warning">
+      Couldn't auto-detect a floor or wall in this photo — drag the corners below to outline them manually.
+    </p>
+  } @else if (!detecting()) {
+    <p class="editor__status">
+      <span class="editor__legend-dot" style="background:#4f8cff"></span> Floor {{ surfaceFound.floor ? 'detected' : 'not found' }}
+      &nbsp;&nbsp;
+      <span class="editor__legend-dot" style="background:#ff9d4f"></span> Wall {{ surfaceFound.wall ? 'detected' : 'not found' }}
+    </p>
+  }
+
+  <div class="editor__controls">
+    <label style="color:#4f8cff">
+      Floor tile scale
+      <input type="range" min="2" max="20" [(ngModel)]="repeats.floor" (ngModelChange)="onRepeatChange()" />
+    </label>
+    <label style="color:#ff9d4f">
+      Wall tile scale
+      <input type="range" min="2" max="20" [(ngModel)]="repeats.wall" (ngModelChange)="onRepeatChange()" />
+    </label>
+    <label>
+      Brightness
+      <input type="range" min="0.5" max="2.5" step="0.1" [(ngModel)]="brightness" (ngModelChange)="onRepeatChange()" />
+    </label>
+    <button type="button" (click)="toggleHandles()">
+      {{ showHandles() ? 'Hide corner handles' : 'Adjust corners manually' }}
+    </button>
+    @if (showHandles()) {
+      <button type="button" (click)="resetPoints()">Reset corners</button>
+    }
+  </div>
+
+  @if (showHandles()) {
+    <p class="editor__hint">
+      Drag the handles to fine-tune each outline —
+      <span style="color:#4f8cff">blue = floor</span>, <span style="color:#ff9d4f">orange = wall</span>.
+    </p>
+  }
+</div>

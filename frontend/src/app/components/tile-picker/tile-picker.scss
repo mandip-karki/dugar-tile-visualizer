@@ -1,0 +1,123 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+
+  &__search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 0.85rem;
+
+    &::placeholder {
+      color: #888;
+    }
+  }
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  &__chip {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid #555;
+    background: #1a1a1a;
+    color: #ddd;
+    font-size: 0.8rem;
+    cursor: pointer;
+
+    &--active {
+      background: #4f8cff;
+      border-color: #4f8cff;
+      color: #fff;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.6rem;
+    overflow-y: auto;
+    padding-right: 4px;
+    align-content: start;
+    flex: 1;
+    min-height: 0;
+  }
+
+  &__tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+
+    &--active {
+      border-color: #4f8cff;
+    }
+  }
+
+  &__thumb {
+    position: relative;
+    width: 100%;
+
+    img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+  }
+
+  &__favorite {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #bbb;
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &--active {
+      color: #ffcc4f;
+    }
+
+    &:hover {
+      color: #ffcc4f;
+    }
+  }
+
+  &__name {
+    font-size: 0.7rem;
+    color: #ccc;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  &__empty {
+    grid-column: 1 / -1;
+    color: #888;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1rem 0;
+  }
+}

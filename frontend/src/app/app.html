@@ -1,0 +1,84 @@
+<div class="page">
+  <header class="page__header">
+    <div class="page__brand">
+      <app-logo [size]="mode() === 'landing' ? 52 : 36"></app-logo>
+      <div class="page__brand-text">
+        <strong>The Dugar Pvt. Ltd.</strong>
+        <span>Granite &middot; Tile &middot; Sanitaryware</span>
+      </div>
+    </div>
+    @if (mode() !== 'landing') {
+      <div class="page__header-actions">
+        @if (mode() === 'photo' && photo()) {
+          <button type="button" (click)="retake()">Retake photo</button>
+        }
+        <button type="button" (click)="backToStart()">Start over</button>
+      </div>
+    }
+  </header>
+
+  @if (mode() === 'landing') {
+    <div class="page__landing">
+      <button type="button" class="page__landing-card" (click)="startPhotoMode()">
+        <strong>Use a photo</strong>
+        <span>Take or upload a picture of your room — floor and walls are detected automatically.</span>
+      </button>
+      <button type="button" class="page__landing-card" (click)="startRoomMode()">
+        <strong>Build a room from dimensions</strong>
+        <span>No photo needed — enter your room's width, depth and height to generate a mockup.</span>
+      </button>
+    </div>
+  } @else if (mode() === 'photo' && !photo()) {
+    <app-camera-capture (photoCaptured)="onPhotoCaptured($event)"></app-camera-capture>
+  } @else {
+    <div class="page__workspace">
+      @if (mode() === 'photo') {
+        <app-floor-editor
+          class="page__editor"
+          [photo]="photo()"
+          [floorTile]="selectedFloorTile()"
+          [wallTile]="selectedWallTile()"
+        ></app-floor-editor>
+      } @else {
+        <app-room-builder
+          class="page__editor"
+          [floorTile]="selectedFloorTile()"
+          [wallTile]="selectedWallTile()"
+        ></app-room-builder>
+      }
+      <aside class="page__sidebar">
+        <div class="page__tabs">
+          <button
+            type="button"
+            class="page__tab"
+            [class.page__tab--active]="activeTab() === 'floor'"
+            (click)="activeTab.set('floor')"
+          >
+            Floor{{ selectedFloorTile() ? ' · ' + selectedFloorTile()!.name : '' }}
+          </button>
+          <button
+            type="button"
+            class="page__tab"
+            [class.page__tab--active]="activeTab() === 'wall'"
+            (click)="activeTab.set('wall')"
+          >
+            Wall{{ selectedWallTile() ? ' · ' + selectedWallTile()!.name : '' }}
+          </button>
+        </div>
+        @if (activeTab() === 'floor') {
+          <app-tile-picker
+            [tiles]="floorTiles()"
+            [selectedId]="selectedFloorTile()?.id ?? null"
+            (tileSelected)="onTileSelected($event)"
+          ></app-tile-picker>
+        } @else {
+          <app-tile-picker
+            [tiles]="wallTiles()"
+            [selectedId]="selectedWallTile()?.id ?? null"
+            (tileSelected)="onTileSelected($event)"
+          ></app-tile-picker>
+        }
+      </aside>
+    </div>
+  }
+</div>

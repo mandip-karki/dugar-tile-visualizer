@@ -1,0 +1,15 @@
+# Node / Angular
+node_modules/
+frontend/dist/
+frontend/.angular/
+
+# .NET
+backend/bin/
+backend/obj/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Local tooling config
+.claude/

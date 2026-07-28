@@ -1,0 +1,6 @@
+@TileFloorApi_HostAddress = http://localhost:5108
+
+GET {{TileFloorApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

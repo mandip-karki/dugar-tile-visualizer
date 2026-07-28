@@ -1,0 +1,51 @@
+<div class="picker">
+  <input
+    type="search"
+    class="picker__search"
+    placeholder="Search tiles…"
+    [ngModel]="searchTerm()"
+    (ngModelChange)="searchTerm.set($event)"
+  />
+
+  <div class="picker__filters">
+    @for (size of sizes(); track size) {
+      <button
+        type="button"
+        class="picker__chip"
+        [class.picker__chip--active]="sizeFilter() === size"
+        (click)="sizeFilter.set(size)"
+      >
+        {{ size === 'ALL' ? 'All sizes' : size }}
+      </button>
+    }
+  </div>
+
+  <div class="picker__grid">
+    @for (tile of filteredTiles(); track tile.id) {
+      <button
+        type="button"
+        class="picker__tile"
+        [class.picker__tile--active]="tile.id === selectedId"
+        (click)="select(tile)"
+      >
+        <div class="picker__thumb">
+          <img [src]="imgUrl(tile.thumbImage)" [alt]="tile.name" loading="lazy" />
+          <span
+            class="picker__favorite"
+            [class.picker__favorite--active]="favorites.isFavorite(tile.id)"
+            (click)="toggleFavorite(tile, $event)"
+            role="button"
+            [attr.aria-label]="favorites.isFavorite(tile.id) ? 'Unfavorite' : 'Favorite'"
+          >
+            {{ favorites.isFavorite(tile.id) ? '★' : '☆' }}
+          </span>
+        </div>
+        <span class="picker__name">{{ tile.name }}</span>
+      </button>
+    }
+
+    @if (filteredTiles().length === 0) {
+      <p class="picker__empty">No tiles match.</p>
+    }
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<div class="capture">
+  <video #video class="capture__video" [class.hidden]="!cameraActive()" playsinline muted></video>
+
+  @if (!cameraActive()) {
+    <div class="capture__placeholder">
+      <p>Take a photo of the floor you want to preview, or upload one.</p>
+      @if (error()) {
+        <p class="capture__error">{{ error() }}</p>
+      }
+      <div class="capture__actions">
+        <button type="button" (click)="startCamera()">Use Camera</button>
+        <button type="button" (click)="triggerUpload()">Upload Photo</button>
+      </div>
+    </div>
+  } @else {
+    <button type="button" class="capture__shutter" (click)="capture()">Capture</button>
+  }
+
+  <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+</div>
