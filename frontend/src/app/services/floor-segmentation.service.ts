@@ -83,8 +83,43 @@ export class FloorSegmentationService {
     }
     fctx.putImageData(fullData, 0, 0);
 
-    const quad = this.estimateQuad(fullData, full.width, full.height);
+    // fill small holes (specular highlights/reflections on glossy floors, thin
+    // shadow lines, etc. often get misclassified as a different material even
+    // though a human would still call that patch "floor") without touching
+    // real obstacles like a rug, which are far larger than this radius
+    const closeRadius = Math.max(3, Math.min(25, Math.round(Math.min(full.width, full.height) * 0.008)));
+    this.closeMask(fctx, full.width, full.height, closeRadius);
+    const closedData = fctx.getImageData(0, 0, full.width, full.height);
+
+    const quad = this.estimateQuad(closedData, full.width, full.height);
     return { maskCanvas: full, quad };
+  }
+
+  /** Morphological closing (dilate then erode): fills gaps up to ~radius wide
+   *  without growing the mask's overall outer boundary. */
+  private closeMask(ctx: CanvasRenderingContext2D, w: number, h: number, radius: number): void {
+    const dilated = document.createElement('canvas');
+    dilated.width = w;
+    dilated.height = h;
+    const dctx = dilated.getContext('2d')!;
+    dctx.filter = `blur(${radius}px)`;
+    dctx.drawImage(ctx.canvas, 0, 0);
+    dctx.filter = 'none';
+    const dilatedData = dctx.getImageData(0, 0, w, h);
+    for (let i = 3; i < dilatedData.data.length; i += 4) {
+      dilatedData.data[i] = dilatedData.data[i] > 15 ? 255 : 0;
+    }
+    dctx.putImageData(dilatedData, 0, 0);
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.filter = `blur(${radius}px)`;
+    ctx.drawImage(dilated, 0, 0);
+    ctx.filter = 'none';
+    const erodedData = ctx.getImageData(0, 0, w, h);
+    for (let i = 3; i < erodedData.data.length; i += 4) {
+      erodedData.data[i] = erodedData.data[i] > 240 ? 255 : 0;
+    }
+    ctx.putImageData(erodedData, 0, 0);
   }
 
   private estimateQuad(imageData: ImageData, w: number, h: number): [Point, Point, Point, Point] {
