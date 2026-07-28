@@ -133,10 +133,16 @@ export class FloorWarpService {
       }
     }
 
-    // luminance-preserving relight: multiply the warped pattern by the
-    // original photo's brightness so shadows/highlights carry through.
+    // luminance-preserving relight: blend the warped pattern against the original
+    // photo's brightness so shadows/highlights carry through. 'overlay' (not
+    // 'multiply') is essential here — multiply can never render brighter than
+    // the base pixel it's blended with, so white tile areas over a non-white
+    // base (a photo's ambient light, or the room-builder's placeholder tones)
+    // would get capped down to that base color instead of reading as true white.
+    // Overlay is neutral at mid-gray, preserves the tile's own tone where the
+    // base is bright, and still darkens it in shadow.
     pctx.save();
-    pctx.globalCompositeOperation = 'multiply';
+    pctx.globalCompositeOperation = 'overlay';
     pctx.filter = `grayscale(1) brightness(${brightness})`;
     pctx.drawImage(basePhoto, 0, 0, w, h);
     pctx.restore();
