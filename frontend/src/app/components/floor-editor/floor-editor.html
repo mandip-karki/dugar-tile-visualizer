@@ -54,4 +54,24 @@
       <span style="color:#ff9d4f">orange = wall</span>.
     </p>
   }
+
+  <div class="editor__ai">
+    <button type="button" class="editor__ai-button" [disabled]="!canGenerateAi || aiBusy()" (click)="generateAi()">
+      {{ aiBusy() ? (aiStage() || 'Generating…') : '✨ Generate photorealistic version (AI)' }}
+    </button>
+    <span class="editor__ai-note">Uses Gemini image generation — costs a small amount per image.</span>
+  </div>
+
+  @if (aiError()) {
+    <p class="editor__warning">{{ aiError() }}</p>
+  }
+
+  @if (aiResult(); as result) {
+    <div class="editor__ai-modal" (click)="dismissAiResult()">
+      <div class="editor__ai-modal-inner" (click)="$event.stopPropagation()">
+        <button type="button" class="editor__ai-modal-close" (click)="dismissAiResult()">&times;</button>
+        <img [src]="result.src" alt="AI-generated room preview" />
+      </div>
+    </div>
+  }
 </div>

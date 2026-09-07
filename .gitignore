@@ -13,3 +13,10 @@ Thumbs.db
 
 # Local tooling config
 .claude/
+supabase/
+
+# Cloudflare Worker
+worker/node_modules/
+worker/.wrangler/
+worker/test-output.*
+worker/test-request.mjs

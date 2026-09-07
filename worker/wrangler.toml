@@ -1,0 +1,10 @@
+name = "dugar-ai-tile-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://mandip-karki.github.io,http://localhost:4200"
+
+# GEMINI_API_KEY is a secret, set via:
+#   npx wrangler secret put GEMINI_API_KEY
+# never stored in this file / never committed to git.

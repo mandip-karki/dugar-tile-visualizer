@@ -12,6 +12,7 @@ import { TileRecord } from '../../models/tile.model';
 import { TileService } from '../../services/tile.service';
 import { FloorWarpService, Point } from '../../services/floor-warp.service';
 import { FloorSegmentationService } from '../../services/floor-segmentation.service';
+import { AiEditService } from '../../services/ai-edit.service';
 import { parseTileSizeCm } from '../../utils/tile-size';
 
 type Surface = 'floor' | 'wall';
@@ -65,6 +66,11 @@ export class FloorEditor implements AfterViewInit {
   readonly detectionFailed = signal(false);
   readonly showHandles = signal(false);
 
+  readonly aiBusy = signal(false);
+  readonly aiStage = signal('');
+  readonly aiError = signal<string | null>(null);
+  readonly aiResult = signal<HTMLImageElement | null>(null);
+
   private _photo: HTMLImageElement | null = null;
   private _floorTile: TileRecord | null = null;
   private _wallTile: TileRecord | null = null;
@@ -88,8 +94,53 @@ export class FloorEditor implements AfterViewInit {
   constructor(
     private readonly warp: FloorWarpService,
     private readonly tileService: TileService,
-    private readonly segmentation: FloorSegmentationService
+    private readonly segmentation: FloorSegmentationService,
+    private readonly aiEdit: AiEditService
   ) {}
+
+  get canGenerateAi(): boolean {
+    return !!this._photo && (!!this.tileImgs.floor || !!this.tileImgs.wall);
+  }
+
+  async generateAi(): Promise<void> {
+    if (!this._photo || this.aiBusy()) return;
+    this.aiBusy.set(true);
+    this.aiError.set(null);
+    this.aiResult.set(null);
+
+    let current: HTMLImageElement | HTMLCanvasElement = this._photo;
+    try {
+      if (this.tileImgs.floor && this._floorTile) {
+        this.aiStage.set('Generating floor…');
+        current = await this.aiEdit.edit({
+          photo: current,
+          tileImg: this.tileImgs.floor,
+          surface: 'floor',
+          tileName: this._floorTile.name,
+        });
+      }
+      if (this.tileImgs.wall && this._wallTile) {
+        this.aiStage.set('Generating wall…');
+        current = await this.aiEdit.edit({
+          photo: current,
+          tileImg: this.tileImgs.wall,
+          surface: 'wall',
+          tileName: this._wallTile.name,
+        });
+      }
+      this.aiResult.set(current as HTMLImageElement);
+    } catch (e) {
+      this.aiError.set(e instanceof Error ? e.message : 'AI generation failed');
+    } finally {
+      this.aiBusy.set(false);
+      this.aiStage.set('');
+    }
+  }
+
+  dismissAiResult(): void {
+    this.aiResult.set(null);
+    this.aiError.set(null);
+  }
 
   ngAfterViewInit(): void {
     this.scheduleRender();

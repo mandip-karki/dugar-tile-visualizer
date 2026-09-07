@@ -1,0 +1,14 @@
+{
+  "name": "dugar-ai-tile-proxy",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260903.1",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.29.0"
+  }
+}
