@@ -15,6 +15,37 @@ Granite, tile & sanitaryware. Live at **https://mandip-karki.github.io/dugar-til
   — kept in the repo for future features that need a real server (accounts, saved rooms, order
   requests, etc.). Useful for local dev if you want to experiment with a server-backed `/api/tiles`
   instead of the static JSON, but the deployed app doesn't call it.
+- `worker/` — a Cloudflare Worker that proxies AI image-generation requests to Gemini (see
+  "AI-generated preview" below). This *is* used by the deployed site — it's the one server-side
+  piece, needed only to keep the Gemini API key off the client.
+
+## AI-generated preview (optional, costs money)
+
+Alongside the deterministic warp-based preview, there's a "✨ Generate photorealistic version
+(AI)" button (photo mode) that sends the current photo + selected tile to Google's Gemini
+2.5 Flash Image model and shows back a fully AI-generated photorealistic edit.
+
+- **Why a separate worker**: the Gemini API key can't live in the Angular app's client-side code
+  (anyone could read it from the page source and rack up charges on your account). `worker/`
+  is a small Cloudflare Worker that holds the key as a secret and proxies the request —
+  deployed independently of the static site, at `https://dugar-ai-tile-proxy.dugarai.workers.dev`.
+- **Cost**: Gemini image generation has **no free tier** — it's ~$0.039/image from the very
+  first call once billing is enabled on the Google Cloud project backing the API key. There's
+  no per-click confirmation in the UI beyond the note next to the button; be aware each click
+  spends real money.
+- **Redeploying the worker** (e.g. after editing `worker/src/index.ts`):
+  ```bash
+  cd worker
+  npm install   # first time only
+  npx wrangler deploy
+  ```
+  The `GEMINI_API_KEY` secret persists across deploys — only re-run
+  `npx wrangler secret put GEMINI_API_KEY` if you need to rotate it.
+- **CORS**: the worker only accepts requests from origins listed in `wrangler.toml`'s
+  `ALLOWED_ORIGINS` (currently the GitHub Pages URL + `localhost:4200` for dev). Add any new
+  origin there before it'll work from that host.
+- If Google renames or deprecates the `gemini-2.5-flash-image` model id, that's the one line to
+  update in `worker/src/index.ts`.
 
 ## Deployment
 
