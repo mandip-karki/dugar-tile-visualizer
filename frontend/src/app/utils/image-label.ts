@@ -1,6 +1,7 @@
 import { TileRecord } from '../models/tile.model';
 
-/** Draws `img` onto a canvas with a floor/wall tile label burned into the bottom edge. */
+/** Draws `img` onto a canvas with a small floor/wall tile label in the bottom-right
+ *  corner — a snug, semi-transparent box sized to just fit the text, not a full bar. */
 export function buildLabeledCanvas(
   img: HTMLImageElement,
   floorTile: TileRecord | null,
@@ -17,19 +18,26 @@ export function buildLabeledCanvas(
   if (wallTile) lines.push(`Wall: ${wallTile.name} (${wallTile.size})`);
   if (lines.length === 0) return canvas;
 
-  const fontSize = Math.max(16, Math.round(canvas.width * 0.018));
-  const padding = fontSize * 0.6;
-  const lineHeight = fontSize * 1.4;
-  const barHeight = padding * 2 + lineHeight * lines.length;
-
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  ctx.fillRect(0, canvas.height - barHeight, canvas.width, barHeight);
+  const fontSize = Math.max(11, Math.round(canvas.width * 0.011));
+  const padding = fontSize * 0.7;
+  const lineHeight = fontSize * 1.35;
+  const margin = fontSize;
 
   ctx.font = `600 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+  const textWidth = Math.max(...lines.map((line) => ctx.measureText(line).width));
+
+  const boxWidth = textWidth + padding * 2;
+  const boxHeight = lineHeight * lines.length + padding * 2;
+  const boxX = canvas.width - margin - boxWidth;
+  const boxY = canvas.height - margin - boxHeight;
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
   ctx.fillStyle = '#ffffff';
   ctx.textBaseline = 'top';
   lines.forEach((line, i) => {
-    ctx.fillText(line, padding, canvas.height - barHeight + padding + i * lineHeight);
+    ctx.fillText(line, boxX + padding, boxY + padding + i * lineHeight);
   });
 
   return canvas;
