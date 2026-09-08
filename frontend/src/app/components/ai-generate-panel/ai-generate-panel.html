@@ -1,0 +1,19 @@
+<div class="ai-panel">
+  <button type="button" class="ai-panel__button" [disabled]="!canGenerate || busy()" (click)="generate()">
+    {{ busy() ? (stage() || 'Generating…') : '✨ Generate photorealistic version (AI)' }}
+  </button>
+  <span class="ai-panel__note">Uses Gemini image generation — costs a small amount per image.</span>
+
+  @if (error()) {
+    <p class="ai-panel__error">{{ error() }}</p>
+  }
+
+  @if (result(); as img) {
+    <div class="ai-panel__modal" (click)="dismiss()">
+      <div class="ai-panel__modal-inner" (click)="$event.stopPropagation()">
+        <button type="button" class="ai-panel__modal-close" (click)="dismiss()">&times;</button>
+        <img [src]="img.src" alt="AI-generated room preview" />
+      </div>
+    </div>
+  }
+</div>

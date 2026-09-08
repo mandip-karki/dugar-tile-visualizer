@@ -2,36 +2,28 @@
   <div class="room__dims">
     <label>
       Width (m)
-      <input type="number" step="0.1" min="1.5" max="12" [(ngModel)]="widthM" (ngModelChange)="onChange()" />
+      <input type="number" step="0.1" min="1.5" max="12" [(ngModel)]="widthM" (ngModelChange)="generate()" />
     </label>
     <label>
       Depth (m)
-      <input type="number" step="0.1" min="1.5" max="12" [(ngModel)]="depthM" (ngModelChange)="onChange()" />
+      <input type="number" step="0.1" min="1.5" max="12" [(ngModel)]="depthM" (ngModelChange)="generate()" />
     </label>
     <label>
       Wall height (m)
-      <input type="number" step="0.1" min="2" max="5" [(ngModel)]="heightM" (ngModelChange)="onChange()" />
+      <input type="number" step="0.1" min="2" max="5" [(ngModel)]="heightM" (ngModelChange)="generate()" />
     </label>
   </div>
 
   <div class="room__canvas-wrap">
-    <canvas #canvas></canvas>
+    @if (baseImageUrl) {
+      <img [src]="baseImageUrl" alt="Room mockup from your dimensions" />
+    }
   </div>
 
-  <div class="room__controls">
-    <label>
-      Tile scale
-      <input type="range" min="0.5" max="2" step="0.1" [(ngModel)]="tileScale" (ngModelChange)="onChange()" />
-    </label>
-    <label>
-      Brightness
-      <input type="range" min="0.5" max="2.5" step="0.1" [(ngModel)]="brightness" (ngModelChange)="onChange()" />
-    </label>
-  </div>
+  <app-ai-generate-panel [photo]="photo" [floorTile]="floorTile" [wallTile]="wallTile"></app-ai-generate-panel>
 
   <p class="room__hint">
-    This is a stylized mockup built from your dimensions, not a photo. Tile counts are computed from
-    each tile's real size (e.g. 60×120cm) against your room's actual dimensions, so floor and wall
-    tiles stay at a consistent, physically accurate scale — use "Tile scale" only to nudge it.
+    This stylized mockup is built from your dimensions, not a photo — pick a floor and/or wall
+    tile from the sidebar, then generate an AI photorealistic version.
   </p>
 </div>

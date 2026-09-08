@@ -3,93 +3,17 @@
   flex-direction: column;
   gap: 0.75rem;
 
-  &__canvas-wrap {
-    position: relative;
+  &__photo-wrap {
     width: 100%;
     background: #000;
     border-radius: 12px;
     overflow: hidden;
     line-height: 0;
-  }
 
-  canvas {
-    width: 100%;
-    height: auto;
-    display: block;
-    touch-action: none;
-    cursor: grab;
-  }
-
-  &__overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    background: rgba(0, 0, 0, 0.55);
-    color: #eee;
-    font-size: 0.9rem;
-  }
-
-  &__spinner {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.25);
-    border-top-color: #4f8cff;
-    animation: editor-spin 0.8s linear infinite;
-  }
-
-  &__warning {
-    color: #ffb84f;
-    font-size: 0.85rem;
-    margin: 0;
-  }
-
-  &__status {
-    color: #aaa;
-    font-size: 0.8rem;
-    margin: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  &__legend-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 0.35rem;
-  }
-
-  &__controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    color: #ddd;
-    font-size: 0.85rem;
-
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-
-    button {
-      padding: 0.5rem 0.9rem;
-      border-radius: 8px;
-      border: 1px solid #555;
-      background: #222;
-      color: #fff;
-      cursor: pointer;
-      align-self: flex-end;
-
-      &:hover {
-        background: #333;
-      }
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
     }
   }
 
@@ -97,81 +21,5 @@
     color: #999;
     font-size: 0.8rem;
     margin: 0;
-  }
-
-  &__ai {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  &__ai-button {
-    padding: 0.6rem 1.1rem;
-    border-radius: 8px;
-    border: 1px solid #7a5cff;
-    background: linear-gradient(135deg, #6a4fd6, #8a5cff);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-
-    &:hover:not(:disabled) {
-      filter: brightness(1.1);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  &__ai-note {
-    color: #888;
-    font-size: 0.75rem;
-  }
-
-  &__ai-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 2rem;
-  }
-
-  &__ai-modal-inner {
-    position: relative;
-    max-width: min(90vw, 1100px);
-    max-height: 90vh;
-
-    img {
-      max-width: 100%;
-      max-height: 90vh;
-      display: block;
-      border-radius: 8px;
-    }
-  }
-
-  &__ai-modal-close {
-    position: absolute;
-    top: -14px;
-    right: -14px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: #fff;
-    color: #111;
-    font-size: 1.1rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-}
-
-@keyframes editor-spin {
-  to {
-    transform: rotate(360deg);
   }
 }

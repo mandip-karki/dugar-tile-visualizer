@@ -32,26 +32,11 @@
     border-radius: 12px;
     overflow: hidden;
     line-height: 0;
-  }
 
-  canvas {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  &__controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    color: #ddd;
-    font-size: 0.85rem;
-
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
     }
   }
 

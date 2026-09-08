@@ -17,10 +17,6 @@
     "@angular/forms": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@angular/router": "^22.0.0",
-    "@tensorflow-models/deeplab": "^0.2.2",
-    "@tensorflow/tfjs-backend-webgl": "^3.21.0",
-    "@tensorflow/tfjs-converter": "^3.21.0",
-    "@tensorflow/tfjs-core": "^3.21.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Point, Quad } from './floor-warp.service';
+
+interface Point {
+  x: number;
+  y: number;
+}
+type Quad = [Point, Point, Point, Point];
 
 export interface RoomGeometry {
   baseImage: HTMLCanvasElement;
-  floorQuad: Quad;
-  /** back, left, right — in that draw order */
-  wallQuads: Quad[];
 }
 
 const CW = 900;
@@ -16,6 +18,8 @@ const norm = (v: number, lo: number, hi: number) => clamp((v - lo) / (hi - lo), 
 
 @Injectable({ providedIn: 'root' })
 export class RoomGeometryService {
+  /** Builds a stylized room mockup (floor + back wall + two side walls) sized from
+   *  the given dimensions, as a plain untiled base image for the AI to edit. */
   build(widthM: number, depthM: number, heightM: number): RoomGeometry {
     const depthFactor = norm(depthM, 2, 10);
     const widthFactor = norm(widthM, 2, 8);
@@ -61,14 +65,8 @@ export class RoomGeometryService {
       { x: backWallRightX, y: backWallBottomY },
     ];
 
-    const baseImage = this.buildBaseImage(
-      backWallQuad,
-      floorQuad,
-      leftWallQuad,
-      rightWallQuad
-    );
-
-    return { baseImage, floorQuad, wallQuads: [backWallQuad, leftWallQuad, rightWallQuad] };
+    const baseImage = this.buildBaseImage(backWallQuad, floorQuad, leftWallQuad, rightWallQuad);
+    return { baseImage };
   }
 
   private buildBaseImage(backWall: Quad, floor: Quad, leftWall: Quad, rightWall: Quad): HTMLCanvasElement {
