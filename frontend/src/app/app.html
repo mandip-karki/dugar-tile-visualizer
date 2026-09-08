@@ -7,14 +7,15 @@
         <span>Granite &middot; Tile &middot; Sanitaryware</span>
       </div>
     </div>
-    @if (mode() !== 'landing') {
-      <div class="page__header-actions">
+    <div class="page__header-actions">
+      <button type="button" (click)="openGallery()">🖼 My AI images</button>
+      @if (mode() !== 'landing') {
         @if (mode() === 'photo' && photo()) {
           <button type="button" (click)="retake()">Retake photo</button>
         }
         <button type="button" (click)="backToStart()">Start over</button>
-      </div>
-    }
+      }
+    </div>
   </header>
 
   @if (mode() === 'landing') {
@@ -79,6 +80,19 @@
           ></app-tile-picker>
         }
       </aside>
+    </div>
+  }
+
+  @if (showGallery()) {
+    <app-gallery-view (select)="onGallerySelected($event)" (closed)="onGalleryClosed()"></app-gallery-view>
+  }
+
+  @if (viewingImageUrl(); as url) {
+    <div class="page__image-viewer" (click)="closeImageViewer()">
+      <div class="page__image-viewer-inner" (click)="$event.stopPropagation()">
+        <button type="button" class="page__image-viewer-close" (click)="closeImageViewer()">&times;</button>
+        <img [src]="url" alt="Saved AI-generated room" />
+      </div>
     </div>
   }
 </div>

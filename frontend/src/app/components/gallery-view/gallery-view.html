@@ -1,0 +1,31 @@
+<div class="gallery" (click)="close()">
+  <div class="gallery__inner" (click)="$event.stopPropagation()">
+    <div class="gallery__header">
+      <strong>Your generated images</strong>
+      <button type="button" class="gallery__close" (click)="close()">&times;</button>
+    </div>
+
+    @if (loading()) {
+      <p class="gallery__empty">Loading…</p>
+    } @else if (items().length === 0) {
+      <p class="gallery__empty">No AI-generated images yet — generate one first.</p>
+    } @else {
+      <div class="gallery__grid">
+        @for (item of items(); track item.id) {
+          <button type="button" class="gallery__item" (click)="choose(item)">
+            <img [src]="item.url" alt="Saved AI-generated room" />
+            <span class="gallery__meta">
+              @if (item.floorTileName) {
+                <span>Floor: {{ item.floorTileName }}</span>
+              }
+              @if (item.wallTileName) {
+                <span>Wall: {{ item.wallTileName }}</span>
+              }
+            </span>
+            <span class="gallery__delete" (click)="remove(item, $event)" role="button" aria-label="Delete">&times;</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -2,6 +2,8 @@ import { Component, Input, signal } from '@angular/core';
 import { TileRecord } from '../../models/tile.model';
 import { TileService } from '../../services/tile.service';
 import { AiEditService } from '../../services/ai-edit.service';
+import { GalleryService } from '../../services/gallery.service';
+import { buildLabeledCanvas, canvasToBlob, canvasToImage } from '../../utils/image-label';
 
 @Component({
   selector: 'app-ai-generate-panel',
@@ -21,7 +23,8 @@ export class AiGeneratePanel {
 
   constructor(
     private readonly aiEdit: AiEditService,
-    private readonly tileService: TileService
+    private readonly tileService: TileService,
+    private readonly gallery: GalleryService
   ) {}
 
   get canGenerate(): boolean {
@@ -56,7 +59,21 @@ export class AiGeneratePanel {
           tileName: this.wallTile.name,
         });
       }
-      this.result.set(current as HTMLImageElement);
+
+      this.stage.set('Labeling…');
+      const labeledCanvas = buildLabeledCanvas(current as HTMLImageElement, this.floorTile, this.wallTile);
+      const [labeledImg, blob] = await Promise.all([canvasToImage(labeledCanvas), canvasToBlob(labeledCanvas)]);
+      this.result.set(labeledImg);
+
+      await this.gallery.save({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        imageBlob: blob,
+        floorTileId: this.floorTile?.id ?? null,
+        floorTileName: this.floorTile?.name ?? null,
+        wallTileId: this.wallTile?.id ?? null,
+        wallTileName: this.wallTile?.name ?? null,
+        createdAt: Date.now(),
+      });
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'AI generation failed');
     } finally {
